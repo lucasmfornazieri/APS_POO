@@ -5,7 +5,7 @@ public class Homem {
 
     //Construtor
     public Homem() {
-        this.posicaoX = 4;
+        this.posicaoX = 0;
         this.posicaoY = 0;
     }
 
