@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Mapa {
 
     //Atributos
@@ -10,24 +12,19 @@ public class Mapa {
     private char[][] cenario;
     private int tamanhoMatriz = 0;
 
-    // private int posXAux;
-    // private int posYAux;
-
     //Construtor
-    public Mapa() {
-        this.cenario = new char[][]{
-            {VAZIO,   VAZIO,  PAREDE, VAZIO,  SAIDA},
-            {VAZIO,  PAREDE,   VAZIO, VAZIO,   VAZIO},
-            {VAZIO,   VAZIO,  VAZIO, VAZIO,   VAZIO},
-            {VAZIO,  PAREDE,   PAREDE, VAZIO,  PAREDE},
-            {ENTRADA,  PAREDE,   VAZIO, VAZIO,  VAZIO}     
-        };
-        this.tamanhoMatriz = 5;
-        // this.posXAux = 4;
-        // this.posYAux = 0;
+    public Mapa(Homem homenzinho, int tamanho) {
+        this.setTamanhoMatriz(tamanho);
+        this.cenario = new char[tamanhoMatriz][tamanhoMatriz];
+        this.criarLabirinto();
+        this.criarEntradaHomenzinho(homenzinho);
     }
 
     //Métodos
+    public void setTamanhoMatriz(int tamanhoMatriz) {
+        this.tamanhoMatriz = tamanhoMatriz;
+    }
+
     public void mostrarMapa() {
         for(int i = 0; i < this.tamanhoMatriz; i++){
             for(int j = 0; j < this.tamanhoMatriz; j++){
@@ -37,10 +34,50 @@ public class Mapa {
         }
         System.out.println("******************");
         try {
-            Thread.sleep(500);
+            Thread.sleep(100);
         }
         catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    public void criarLabirinto() {
+        Random ran = new Random();
+        int numeroParedes = 20;
+        int numeroSaida = 1;
+        int paredeOuVazio = 0;
+        for (int i = 0; i < tamanhoMatriz; i++) {
+            for (int j = 0; j < tamanhoMatriz; j++) {
+                paredeOuVazio = ran.nextInt(8);
+
+                if(paredeOuVazio == 1 && numeroParedes > 0) {
+                    this.cenario[i][j] = PAREDE;
+                    numeroParedes--;
+                }
+                else if (paredeOuVazio == 5 && numeroSaida != 0) {
+                    this.cenario[i][j] = SAIDA;
+                    numeroSaida--;
+                }
+                else {
+                    this.cenario[i][j] = VAZIO;
+                }
+            }
+        }
+    }
+
+    public void criarEntradaHomenzinho(Homem homenzinho) {
+        boolean validacaoNaMatriz = true;
+        Random ran = new Random();
+        while(validacaoNaMatriz) {
+            int rand1 = ran.nextInt(this.tamanhoMatriz);
+            int rand2 = ran.nextInt(this.tamanhoMatriz);
+
+            if(this.cenario[rand1][rand2] != PAREDE && this.cenario[rand1][rand2] != SAIDA) {
+                this.cenario[rand1][rand2] = ENTRADA;
+                homenzinho.setPosicaoX(rand1);
+                homenzinho.setPosicaoY(rand2);
+                validacaoNaMatriz = false;
+            }
         }
     }
 
@@ -56,16 +93,12 @@ public class Mapa {
         } else {
             this.cenario[posX][posY] = HOMEM_VAI;
             if(acharCaminhoAutomaticamente(homenzinho, posX - 1, posY)){
-                // mostrarMapa();
                 return true;
             } else if(acharCaminhoAutomaticamente(homenzinho, posX, posY + 1)){
-                // mostrarMapa();
                 return true;
             } else if(acharCaminhoAutomaticamente(homenzinho, posX + 1, posY)){
-                // mostrarMapa();
                 return true;
             } else if(acharCaminhoAutomaticamente(homenzinho, posX, posY - 1)){
-                // mostrarMapa();
                 return true;
             } else{
                 this.cenario[posX][posY] = VAZIO;
